@@ -1,0 +1,333 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ExamPC.App.Views.ExamWindow"
+        Title="Sesi Ujian"
+        WindowState="FullScreen"
+        SystemDecorations="None"
+        Topmost="True"
+        CanResize="False"
+        ShowInTaskbar="False"
+        Background="#0E141B">
+
+  <Window.Styles>
+    <!--
+      Ikon (Material Design Icons). Path tidak mewarisi Foreground seperti teks,
+      jadi warnanya disetel per jenis tombol di bawah, termasuk saat hover.
+    -->
+    <Style Selector="Path.icon">
+      <Setter Property="Stretch" Value="Uniform" />
+      <Setter Property="Width" Value="14" />
+      <Setter Property="Height" Value="14" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="Button.hdr Path.icon">
+      <Setter Property="Fill" Value="#C9D4DF" />
+    </Style>
+    <Style Selector="Button.hdr:pointerover Path.icon">
+      <Setter Property="Fill" Value="White" />
+    </Style>
+    <Style Selector="Button.danger Path.icon, Button.primary Path.icon">
+      <Setter Property="Fill" Value="White" />
+    </Style>
+
+    <!-- Focusable=False: Enter/Spasi saat mengetik jawaban tidak boleh ikut menekan tombol ini. -->
+    <Style Selector="Button.hdr">
+      <Setter Property="Padding" Value="12,7" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="#C9D4DF" />
+      <Setter Property="Background" Value="#1D2833" />
+      <Setter Property="BorderBrush" Value="#2B3947" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Focusable" Value="False" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.hdr:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#263441" />
+      <Setter Property="BorderBrush" Value="#3A4B5C" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.hdr:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#16202A" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <Style Selector="Button.danger">
+      <Setter Property="Background" Value="#B8323A" />
+      <Setter Property="BorderBrush" Value="#C8424A" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.danger:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#CF3C45" />
+      <Setter Property="BorderBrush" Value="#DD5058" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.danger:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#9E2A31" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <Style Selector="Button.primary">
+      <Setter Property="Padding" Value="18,11" />
+      <Setter Property="FontSize" Value="14" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="White" />
+      <Setter Property="Background" Value="#1F6F43" />
+      <Setter Property="CornerRadius" Value="9" />
+      <Setter Property="Cursor" Value="Hand" />
+    </Style>
+    <Style Selector="Button.primary:pointerover /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#26834F" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+    <Style Selector="Button.primary:pressed /template/ ContentPresenter#PART_ContentPresenter">
+      <Setter Property="Background" Value="#185A36" />
+      <Setter Property="Foreground" Value="White" />
+    </Style>
+
+    <Style Selector="Border.chip">
+      <Setter Property="Background" Value="#1A2430" />
+      <Setter Property="BorderBrush" Value="#243240" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="10,6" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+
+    <!-- Langkah bernomor di layar pembekuan. -->
+    <Style Selector="Border.step">
+      <Setter Property="Width" Value="22" />
+      <Setter Property="Height" Value="22" />
+      <Setter Property="CornerRadius" Value="11" />
+      <Setter Property="Background" Value="#EEF2F6" />
+      <Setter Property="VerticalAlignment" Value="Top" />
+    </Style>
+    <Style Selector="Border.step > TextBlock">
+      <Setter Property="FontSize" Value="11" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="#52606D" />
+      <Setter Property="HorizontalAlignment" Value="Center" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+    <Style Selector="TextBlock.stepText">
+      <Setter Property="Margin" Value="12,2,0,0" />
+      <Setter Property="FontSize" Value="13" />
+      <Setter Property="Foreground" Value="#3E4C59" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,Auto,*">
+
+    <!--
+      Bilah kepala. Tombol Keluar selalu meminta PIN pengawas; mengetuk bilah
+      ini lima kali tetap berfungsi sebagai jalan keluar cadangan.
+    -->
+    <Border Grid.Row="0" x:Name="HeaderBar" Background="#141C25" Padding="18,10"
+            BorderBrush="#1F2A36" BorderThickness="0,0,0,1"
+            PointerPressed="OnHeaderTapped">
+      <Grid ColumnDefinitions="Auto,*,Auto,Auto">
+
+        <!-- Identitas & status kunci -->
+        <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="12" VerticalAlignment="Center">
+          <Border Width="36" Height="36" CornerRadius="10">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Offset="0" Color="#38A869" />
+                <GradientStop Offset="1" Color="#1B6340" />
+              </LinearGradientBrush>
+            </Border.Background>
+            <Path Fill="White" Width="18" Height="18" Stretch="Uniform"
+                  Data="M12,1L3,5V11C3,16.55 6.84,21.74 12,23C17.16,21.74 21,16.55 21,11V5L12,1M10,17L6,13L7.41,11.59L10,14.17L16.59,7.58L18,9L10,17Z" />
+          </Border>
+          <StackPanel VerticalAlignment="Center" Spacing="1">
+            <TextBlock Text="ExamPC" FontSize="15" FontWeight="Bold" Foreground="#E6EDF3" />
+            <StackPanel Orientation="Horizontal" Spacing="6">
+              <Ellipse Width="7" Height="7" Fill="#3FB96F" VerticalAlignment="Center" />
+              <TextBlock Text="Mode ujian terkunci" FontSize="11" Foreground="#7F93A8" />
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+
+        <!-- Ruang / sesi -->
+        <Border Grid.Column="1" x:Name="RoomChip" Classes="chip" IsVisible="False"
+                HorizontalAlignment="Left" Margin="22,0,0,0">
+          <StackPanel Orientation="Horizontal" Spacing="7">
+            <Path Classes="icon" Fill="#7F93A8" Width="13" Height="13"
+                  Data="M12,11.5A2.5,2.5 0 0,1 9.5,9A2.5,2.5 0 0,1 12,6.5A2.5,2.5 0 0,1 14.5,9A2.5,2.5 0 0,1 12,11.5M12,2A7,7 0 0,0 5,9C5,14.25 12,22 12,22C12,22 19,14.25 19,9A7,7 0 0,0 12,2Z" />
+            <TextBlock x:Name="RoomLine" FontSize="12" Foreground="#AFC0D0" VerticalAlignment="Center" />
+          </StackPanel>
+        </Border>
+
+        <!-- Pelanggaran & waktu -->
+        <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Border x:Name="ViolationChip" Classes="chip" IsVisible="False"
+                  Background="#33240F" BorderBrush="#5E4118">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Classes="icon" Fill="#F0A83C" Width="13" Height="13"
+                    Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z" />
+              <TextBlock x:Name="ViolationLine" FontSize="12" FontWeight="SemiBold"
+                         Foreground="#F3B45A" VerticalAlignment="Center" />
+            </StackPanel>
+          </Border>
+
+          <Border Classes="chip">
+            <StackPanel Orientation="Horizontal" Spacing="8">
+              <Path Classes="icon" Fill="#7F93A8"
+                    Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
+              <TextBlock x:Name="ClockLine" Text="00:00:00" FontSize="14" FontWeight="SemiBold"
+                         Foreground="#E6EDF3" VerticalAlignment="Center"
+                         FontFamily="Consolas,Menlo,monospace" />
+            </StackPanel>
+          </Border>
+        </StackPanel>
+
+        <!-- Aksi -->
+        <StackPanel Grid.Column="3" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+          <Border Width="1" Height="26" Background="#253240" Margin="8,0,6,0" />
+          <Button x:Name="RefreshButton" Classes="hdr" Click="OnRefreshClick"
+                  ToolTip.Tip="Muat ulang halaman ujian">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Classes="icon"
+                    Data="M17.65,6.35C16.2,4.9 14.21,4 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20C15.73,20 18.84,17.45 19.73,14H17.65C16.83,16.33 14.61,18 12,18A6,6 0 0,1 6,12A6,6 0 0,1 12,6C13.66,6 15.14,6.69 16.22,7.78L13,11H20V4L17.65,6.35Z" />
+              <TextBlock Text="Muat Ulang" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+          <Button x:Name="LogoutButton" Classes="hdr danger" Click="OnLogoutClick"
+                  ToolTip.Tip="Keluar dari ujian (butuh PIN pengawas)">
+            <StackPanel Orientation="Horizontal" Spacing="7">
+              <Path Classes="icon"
+                    Data="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z" />
+              <TextBlock Text="Keluar" VerticalAlignment="Center" />
+            </StackPanel>
+          </Button>
+        </StackPanel>
+      </Grid>
+    </Border>
+
+    <!--
+      Garis muat halaman. Sengaja di baris sendiri, bukan menumpuk di atas
+      peramban: bila CEF berjalan sebagai jendela native, apa pun yang menumpuk
+      di atasnya tidak akan terlihat.
+    -->
+    <Border Grid.Row="1" Height="3" Background="#141C25">
+      <ProgressBar x:Name="LoadingBar" IsIndeterminate="True" IsVisible="False"
+                   MinHeight="3" Height="3" MinWidth="0" CornerRadius="0"
+                   Foreground="#3FB96F" Background="Transparent" />
+    </Border>
+
+    <!--
+      Wadah halaman ujian. AvaloniaCefBrowser tidak bisa dideklarasikan di XAML
+      karena konstruktornya punya parameter opsional, dan compiler XAML Avalonia
+      hanya menerima konstruktor tanpa parameter sama sekali. Jadi peramban
+      dibuat di code-behind lalu disisipkan ke sini.
+    -->
+    <Panel Grid.Row="2" x:Name="BrowserHost" />
+
+    <!--
+      Selimut pembekuan. Menutup seluruh layar termasuk bilah kepala, sehingga
+      soal tidak lagi terbaca begitu sesi dibekukan.
+    -->
+    <Border Grid.Row="0" Grid.RowSpan="3" x:Name="FreezeOverlay" IsVisible="False">
+      <Border.Background>
+        <RadialGradientBrush Center="50%,40%" GradientOrigin="50%,40%" RadiusX="70%" RadiusY="70%">
+          <!-- Tanpa transparansi: soal di belakangnya tidak boleh terbaca sedikit pun. -->
+          <GradientStop Offset="0" Color="#FF261C24" />
+          <GradientStop Offset="1" Color="#FF0A0F14" />
+        </RadialGradientBrush>
+      </Border.Background>
+
+      <Border Background="White" CornerRadius="16" MaxWidth="540" Margin="24"
+              VerticalAlignment="Center" HorizontalAlignment="Center"
+              BoxShadow="0 24 64 0 #99000000" ClipToBounds="True">
+        <StackPanel>
+
+          <!-- Pita judul -->
+          <Border CornerRadius="16,16,0,0" Padding="28,24">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,100%">
+                <GradientStop Offset="0" Color="#C4343C" />
+                <GradientStop Offset="1" Color="#8A1D24" />
+              </LinearGradientBrush>
+            </Border.Background>
+            <StackPanel Orientation="Horizontal" Spacing="16">
+              <Border Width="54" Height="54" CornerRadius="27" Background="#2EFFFFFF"
+                      BorderBrush="#40FFFFFF" BorderThickness="1">
+                <Path Fill="White" Width="24" Height="24" Stretch="Uniform"
+                      Data="M12,17A2,2 0 0,0 14,15C14,13.89 13.1,13 12,13A2,2 0 0,0 10,15A2,2 0 0,0 12,17M18,8A2,2 0 0,1 20,10V20A2,2 0 0,1 18,22H6A2,2 0 0,1 4,20V10C4,8.89 4.9,8 6,8H7V6A5,5 0 0,1 12,1A5,5 0 0,1 17,6V8H18M12,3A3,3 0 0,0 9,6V8H15V6A3,3 0 0,0 12,3Z" />
+              </Border>
+              <StackPanel VerticalAlignment="Center" Spacing="2">
+                <TextBlock Text="Sesi Dibekukan" FontSize="23" FontWeight="Bold" Foreground="White" />
+                <TextBlock Text="Ujian dihentikan sementara oleh sistem keamanan"
+                           FontSize="13" Foreground="#F7D7DA" />
+              </StackPanel>
+            </StackPanel>
+          </Border>
+
+          <StackPanel Margin="28,22,28,24" Spacing="18">
+
+            <!-- Alasan -->
+            <Border Background="#FDF1F2" BorderBrush="#F4CDD0" BorderThickness="1"
+                    CornerRadius="10" Padding="14,12">
+              <Grid ColumnDefinitions="Auto,*">
+                <Path Grid.Column="0" Fill="#B4232B" Width="16" Height="16" Stretch="Uniform"
+                      VerticalAlignment="Top" Margin="0,2,12,0"
+                      Data="M13,14H11V10H13M13,18H11V16H13M1,21H23L12,2L1,21Z" />
+                <StackPanel Grid.Column="1" Spacing="3">
+                  <TextBlock Text="PENYEBAB" FontSize="10" FontWeight="Bold"
+                             Foreground="#B4232B" LetterSpacing="0.8" />
+                  <TextBlock x:Name="FreezeReason" TextWrapping="Wrap" FontSize="14"
+                             Foreground="#1F2933" />
+                </StackPanel>
+              </Grid>
+            </Border>
+
+            <!-- Langkah -->
+            <StackPanel Spacing="10">
+              <TextBlock Text="Yang harus dilakukan" FontSize="13" FontWeight="SemiBold"
+                         Foreground="#1F2933" />
+              <Grid ColumnDefinitions="Auto,*">
+                <Border Classes="step"><TextBlock Text="1" /></Border>
+                <TextBlock Grid.Column="1" Classes="stepText"
+                           Text="Tetap di tempat duduk dan jangan mematikan perangkat." />
+              </Grid>
+              <Grid ColumnDefinitions="Auto,*">
+                <Border Classes="step"><TextBlock Text="2" /></Border>
+                <TextBlock Grid.Column="1" Classes="stepText"
+                           Text="Angkat tangan dan panggil pengawas ruangan." />
+              </Grid>
+              <Grid ColumnDefinitions="Auto,*">
+                <Border Classes="step"><TextBlock Text="3" /></Border>
+                <TextBlock Grid.Column="1" Classes="stepText"
+                           Text="Pengawas memasukkan PIN untuk melanjutkan sesi ujian." />
+              </Grid>
+            </StackPanel>
+
+            <Border Height="1" Background="#E6EBF0" />
+
+            <!-- Kaki -->
+            <StackPanel Spacing="12">
+              <Button Classes="primary" Click="OnUnfreezeClick"
+                      HorizontalAlignment="Stretch" HorizontalContentAlignment="Center">
+                <StackPanel Orientation="Horizontal" Spacing="9">
+                  <Path Classes="icon" Width="17" Height="17"
+                        Data="M7,14A2,2 0 0,1 5,12A2,2 0 0,1 7,10A2,2 0 0,1 9,12A2,2 0 0,1 7,14M12.65,10C11.83,7.67 9.61,6 7,6A6,6 0 0,0 1,12A6,6 0 0,0 7,18C9.61,18 11.83,16.33 12.65,14H17V18H21V14H23V10H12.65Z" />
+                  <TextBlock Text="Masukkan PIN Pengawas" VerticalAlignment="Center" />
+                </StackPanel>
+              </Button>
+              <StackPanel Orientation="Horizontal" Spacing="6" HorizontalAlignment="Center">
+                <Path Fill="#8A97A5" Width="12" Height="12" Stretch="Uniform" VerticalAlignment="Center"
+                      Data="M12,20A8,8 0 0,0 20,12A8,8 0 0,0 12,4A8,8 0 0,0 4,12A8,8 0 0,0 12,20M12,2A10,10 0 0,1 22,12A10,10 0 0,1 12,22C6.47,22 2,17.5 2,12A10,10 0 0,1 12,2M12.5,7V12.25L17,14.92L16.25,16.15L11,13V7H12.5Z" />
+                <TextBlock x:Name="FreezeTimeLine" FontSize="12" Foreground="#6B7A8D"
+                           VerticalAlignment="Center" />
+              </StackPanel>
+            </StackPanel>
+          </StackPanel>
+        </StackPanel>
+      </Border>
+    </Border>
+
+  </Grid>
+</Window>

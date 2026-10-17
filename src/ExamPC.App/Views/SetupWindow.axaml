@@ -1,0 +1,106 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="ExamPC.App.Views.SetupWindow"
+        Title="ExamPC — Penyiapan Ujian"
+        Width="860" Height="680"
+        MinWidth="720" MinHeight="600"
+        WindowStartupLocation="CenterScreen"
+        Background="#F6F8FA">
+
+  <Window.Styles>
+    <Style Selector="TextBlock.label">
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+      <Setter Property="Margin" Value="0,14,0,4" />
+    </Style>
+    <Style Selector="TextBlock.hint">
+      <Setter Property="Foreground" Value="{DynamicResource Muted}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+      <Setter Property="Margin" Value="0,3,0,0" />
+    </Style>
+    <Style Selector="TextBlock.section">
+      <Setter Property="FontSize" Value="15" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+      <Setter Property="Margin" Value="0,22,0,2" />
+    </Style>
+    <Style Selector="CheckBox">
+      <Setter Property="Margin" Value="0,6,0,0" />
+    </Style>
+  </Window.Styles>
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <!-- Kepala -->
+    <Border Grid.Row="0" Background="White" Padding="24,18"
+            BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1">
+      <StackPanel Spacing="2">
+        <TextBlock Text="Penyiapan Ujian" FontSize="21" FontWeight="Bold"
+                   Foreground="{DynamicResource Ink}" />
+        <TextBlock x:Name="PlatformLine" Classes="hint" />
+      </StackPanel>
+    </Border>
+
+    <!-- Isi -->
+    <!--
+      Jarak tepi dipasang sebagai Margin isi, bukan Padding ScrollViewer: Padding
+      tidak ikut dihitung ke tinggi area gulir, sehingga kartu hasil pemeriksaan
+      paling bawah terpotong dan tidak bisa digulir sampai habis.
+    -->
+    <ScrollViewer Grid.Row="1">
+      <StackPanel MaxWidth="760" HorizontalAlignment="Left" Margin="24,8,24,24">
+
+        <TextBlock Text="Alamat ujian" Classes="section" />
+
+        <TextBlock Text="URL halaman ujian" Classes="label" />
+        <TextBox x:Name="UrlBox" Watermark="https://cbt.sekolah.sch.id/ujian" />
+        <TextBlock Classes="hint"
+                   Text="Domain dari alamat ini otomatis masuk daftar putih. Halaman di luar daftar putih akan ditolak." />
+
+        <TextBlock Text="Label ruang / sesi" Classes="label" />
+        <TextBox x:Name="RoomBox" Watermark="Lab 1 — Sesi Pagi" />
+        <TextBlock Classes="hint" Text="Ikut tercatat di setiap log pelanggaran, memudahkan penelusuran." />
+
+        <TextBlock Text="Proteksi" Classes="section" />
+        <TextBlock Classes="hint"
+                   Text="Seluruh proteksi otomatis aktif: anti-screenshot, kunci tombol sistem, blokir salin-tempel dan cetak, satu layar, pindai aplikasi terlarang, tolak mesin virtual, dan kunci saat kehilangan fokus." />
+        <TextBlock Classes="hint"
+                   Text="PIN keluar diperiksa ke server CBT, sama dengan aplikasi Exambro di HP. Bila server tidak terjangkau, PIN cadangan yang berlaku." />
+
+        <TextBlock Text="Pelaporan (opsional)" Classes="section" />
+
+        <TextBlock Text="Webhook log pelanggaran" Classes="label" />
+        <TextBox x:Name="WebhookBox" Watermark="https://cbt.sekolah.sch.id/api/pelanggaran" />
+        <TextBlock Classes="hint"
+                   Text="Setiap pelanggaran dikirim sebagai POST JSON. Log tetap ditulis ke berkas lokal walau jaringan putus." />
+
+        <!-- Hasil pemindaian -->
+        <TextBlock Text="Hasil pemeriksaan perangkat" Classes="section" />
+        <Border x:Name="ScanPanel" Background="White" CornerRadius="8" Padding="16"
+                BorderBrush="{DynamicResource Line}" BorderThickness="1" Margin="0,6,0,0">
+          <StackPanel x:Name="ScanList" Spacing="10">
+            <TextBlock Classes="hint"
+                       Text="Belum diperiksa. Tekan Periksa Perangkat sebelum memulai ujian." />
+          </StackPanel>
+        </Border>
+
+      </StackPanel>
+    </ScrollViewer>
+
+    <!-- Kaki -->
+    <Border Grid.Row="2" Background="White" Padding="24,14"
+            BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0">
+      <Grid ColumnDefinitions="*,Auto,Auto">
+        <TextBlock x:Name="StatusLine" Grid.Column="0" VerticalAlignment="Center"
+                   TextWrapping="Wrap" Foreground="{DynamicResource Muted}" />
+        <Button Grid.Column="1" x:Name="ScanButton" Content="Periksa Perangkat"
+                Click="OnScanClick" Padding="18,9" Margin="0,0,10,0" />
+        <Button Grid.Column="2" x:Name="StartButton" Content="Mulai Ujian"
+                Click="OnStartClick" Padding="22,9"
+                Background="#1F6F43" Foreground="White" FontWeight="SemiBold" />
+      </Grid>
+    </Border>
+
+  </Grid>
+</Window>

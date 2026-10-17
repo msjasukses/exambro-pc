@@ -1,0 +1,19 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="ExamPC.App.App"
+             RequestedThemeVariant="Light">
+
+  <Application.Styles>
+    <FluentTheme />
+  </Application.Styles>
+
+  <Application.Resources>
+    <SolidColorBrush x:Key="Ink">#1F2933</SolidColorBrush>
+    <SolidColorBrush x:Key="Muted">#6B7A8D</SolidColorBrush>
+    <SolidColorBrush x:Key="Danger">#B4232B</SolidColorBrush>
+    <SolidColorBrush x:Key="DangerSoft">#FCEBEC</SolidColorBrush>
+    <SolidColorBrush x:Key="WarnSoft">#FFF6E0</SolidColorBrush>
+    <SolidColorBrush x:Key="OkSoft">#E7F5EC</SolidColorBrush>
+    <SolidColorBrush x:Key="Line">#DCE3EA</SolidColorBrush>
+  </Application.Resources>
+</Application>

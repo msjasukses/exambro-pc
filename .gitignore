@@ -1,0 +1,24 @@
+# Build .NET
+bin/
+obj/
+*.user
+*.suo
+.vs/
+.idea/
+
+# Hasil publish & installer
+publish/
+artifacts/
+dist/
+
+# Data runtime — jangan sampai log pelanggaran siswa masuk repositori
+logs/
+*.jsonl
+exam-config.json
+
+# CEF
+cef/
+locales/
+
+# Kunci API PIN keluar
+exampc-api.properties

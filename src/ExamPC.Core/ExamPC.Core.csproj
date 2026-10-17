@@ -1,0 +1,32 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>ExamPC.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Assets\hardening.js" />
+  </ItemGroup>
+
+  <!--
+    Kunci API verifikasi PIN keluar, sama dengan exbro-api.properties milik exbro.
+    Berkasnya tidak di-commit. Tanpa berkas itu, verifikasi ke server nonaktif dan
+    hanya PIN cadangan bawaan 112233 yang berlaku.
+  -->
+  <PropertyGroup>
+    <ExitPinApiFile>$(MSBuildThisFileDirectory)..\..\exampc-api.properties</ExitPinApiFile>
+  </PropertyGroup>
+
+  <ItemGroup Condition="Exists('$(ExitPinApiFile)')">
+    <EmbeddedResource Include="$(ExitPinApiFile)" LogicalName="ExamPC.Core.exampc-api.properties" />
+  </ItemGroup>
+
+  <Target Name="WarnMissingExitPinApi" BeforeTargets="Build" Condition="!Exists('$(ExitPinApiFile)')">
+    <Warning Text="exampc-api.properties tidak ditemukan: verifikasi PIN keluar ke server nonaktif, hanya PIN cadangan bawaan 112233 yang berlaku." />
+  </Target>
+
+</Project>

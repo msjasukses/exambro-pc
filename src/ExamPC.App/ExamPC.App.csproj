@@ -1,0 +1,43 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <RootNamespace>ExamPC.App</RootNamespace>
+    <AssemblyName>ExamPC</AssemblyName>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+    <!-- CEF membawa binari native per-RID, jadi build harus selalu RID-spesifik. -->
+    <RuntimeIdentifiers>win-x64;osx-x64;osx-arm64;linux-x64</RuntimeIdentifiers>
+    <SelfContained>true</SelfContained>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExamPC.Core\ExamPC.Core.csproj" />
+    <ProjectReference Include="..\ExamPC.Platform\ExamPC.Platform.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.2.3" />
+    <PackageReference Include="Avalonia.Fonts.Inter" Version="11.2.3" />
+
+    <!--
+      Peramban tertanam berbasis Chromium Embedded Framework.
+
+      Dipakai langsung, bukan lewat pembungkus WebViewControl-Avalonia: pembungkus
+      itu masih terpaku pada Avalonia 0.10 dan gagal memuat di Avalonia 11.
+      Memakai CefGlue langsung juga memberi akses ke handler CEF asli
+      (CefRequestHandler, CefLifeSpanHandler), yang justru lebih tepat untuk
+      white-list URL daripada API pembungkusnya.
+
+      Konsekuensinya: ukuran distribusi bertambah ± 120 MB per platform.
+    -->
+    <PackageReference Include="CefGlue.Avalonia" Version="120.6099.211" />
+  </ItemGroup>
+
+</Project>
